@@ -1,0 +1,27 @@
+Files already downloaded and verified
+valid transform is activated
+Files already downloaded and verified
+# of known normal:  263
+# of known outlier:  263
+# of training set:  5262
+val dataset: 236
+train dataset: 5026
+Files already downloaded and verified
+kmeans  500
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+K-means failure... Retrying
+initialization_time=0.089644 sec, sparsity=1.0
+n_iter=1, changed=19982, inertia=2989.047, iter_time=1.851 sec, sparsity=1.0
+n_iter=2, changed=3980, inertia=2380.707, iter_time=2.037 sec, sparsity=1.0
+n_iter=3, changed=2042, inertia=2258.477, iter_time=2.049 sec, sparsity=1.0
+n_iter=4, changed=1318, inertia=2204.306, iter_time=2.034 sec, sparsity=1.0
+n_iter=5, changed=937, inertia=2174.505, iter_time=2.028 sec, sparsity=1.0
+n_iter=6, changed=697, inertia=2154.608, iter_time=2.051 sec, sparsity=1.0
+n_iter=7, changed=517, inertia=2141.340, iter_time=2.013 sec, sparsity=1.0
+n_iter=8, changed=418, inertia=2132.046, iter_time=2.074 sec, sparsity=1.0
+n_iter=9, changed=368, inertia=2124.754, iter_time=2.065 sec, sparsity=1.0
+n_iter=10, changed=296, inertia=2118.744, iter_time=2.018 sec, sparsity=1.0
+known_normal: 0 known_outlier: 1
