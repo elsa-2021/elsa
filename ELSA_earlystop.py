@@ -224,10 +224,10 @@ def test(model, test_loader, train_loader, epoch):
         first = True
         for idx, (pos_1, _, _, semi_target, _, _) in enumerate(train_loader):
             pos_1 = pos_1.cuda(non_blocking=True)
-            pos_1 = simclr_aug(pos_1)
-            pos_1 = normalize(pos_1)
+            pos_1 = simclr_aug(pos_1) // need check
+            #pos_1 = normalize(pos_1) // need check
             # feature = model(pos_1)
-            _, outputs_aux = model(images1, simclr=True, penultimate=False, shift=False)
+            _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
             out = outputs_aux['simclr']
             feature = F.normalize(out, dim=-1)
             true_feature = feature[semi_target == 1,:]
@@ -254,7 +254,7 @@ def test(model, test_loader, train_loader, epoch):
                 pos_1 = pos_1.cuda(non_blocking=True)
                 
 #                 _ , feature = model(pos_1,need_feat = True)              
-                _, outputs_aux = model(images1, simclr=True, penultimate=False, shift=False)
+                _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
                 out = outputs_aux['simclr']
                 out_ensemble.append(feature) 
             
