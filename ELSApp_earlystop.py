@@ -664,5 +664,5 @@ for epoch in range(args.n_epochs):
         break
 
 print("best epoch:",best_epoch,"best auroc:",max_earlystop_auroc)
-test(best_model, test_loader, train_loader, epoch, valid_loader=valid_loader) # we do not test them
+test(best_model, test_loader, train_loader, epoch) # we do not test them
 
