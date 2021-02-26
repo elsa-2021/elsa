@@ -51,7 +51,7 @@ def generate_prototypes(model, valid_loader, n_cluster=100):
             out = outputs_aux['simclr']
             feature = F.normalize(out, dim=-1)
 
-            true_feature = feature[semi_target == 1,:]
+            true_feature = feature[semi_target != -1,:]
             
             if first:
                 totalembed = true_feature
@@ -224,13 +224,13 @@ def test(model, test_loader, train_loader, epoch):
         first = True
         for idx, (pos_1, _, _, semi_target, _, _) in enumerate(train_loader):
             pos_1 = pos_1.cuda(non_blocking=True)
-            pos_1 = simclr_aug(pos_1) // need check
-            #pos_1 = normalize(pos_1) // need check
+            pos_1 = simclr_aug(pos_1)
+            #pos_1 = normalize(pos_1) 
             # feature = model(pos_1)
             _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
             out = outputs_aux['simclr']
             feature = F.normalize(out, dim=-1)
-            true_feature = feature[semi_target == 1,:]
+            true_feature = feature[semi_target != -1,:]
 
             if first:
                 totalembed = true_feature
@@ -250,7 +250,7 @@ def test(model, test_loader, train_loader, epoch):
                 set_random_seed(seed) # random seed setting
                 
                 pos_1 = simclr_aug(image)
-                pos_1 = normalize(pos_1) 
+#                 pos_1 = normalize(pos_1) 
                 pos_1 = pos_1.cuda(non_blocking=True)
                 
 #                 _ , feature = model(pos_1,need_feat = True)              
@@ -381,10 +381,13 @@ elif args.optimizer =="SGD":
 import copy
     
 # Evaluation before training
-# test(model, test_loader, valid_loader, -1)
+test(model, test_loader, train_loader, -1)
 earlystop_trace = []
 end_train = False
 max_earlystop_auroc = 0
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+hflip = TL.HorizontalFlipLayer().to(device)
 for epoch in range(args.n_epochs):
     model.train()
     
@@ -398,16 +401,17 @@ for epoch in range(args.n_epochs):
     
     # training
     losses = []
-    for i, (pos1, pos2, _, semi_target, _, _) in tqdm(enumerate(train_loader)):
-        pos1, pos2 = pos1.to(args.device), pos2.to(args.device)
+    for i, (pos, pos2, _, semi_target, _, _) in tqdm(enumerate(train_loader)):
+        #pos1, pos2 = pos1.to(args.device), pos2.to(args.device)
         semi_target = semi_target.to(args.device)
+        semi_target = semi_target.repeat(2)
         #La = similarity_loss(pos1, pos2, model)
 
-        
-        semi_target = semi_target.repeat(2)
-        pos = torch.cat([pos1,pos2],dim=0)
+        pos = pos.to(args.device)
+        pos_1, pos_2 = hflip(pos.repeat(2, 1, 1, 1)).chunk(2)
+        pos = torch.cat([pos_1,pos_2],dim=0)
         pos = simclr_aug(pos)
-        pos = normalize(pos)
+#         pos = normalize(pos)
         score, logits1 = energy_score(pos, model)
 #         _, logits2 = energy_score(pos2, model)
         C = (torch.log(torch.Tensor([args.n_cluster])) + 1/args.temperature).to(device)
