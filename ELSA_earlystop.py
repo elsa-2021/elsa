@@ -40,6 +40,7 @@ def checkpoint(f,  tag, args, device):
     f.to(device)
 def generate_prototypes(model, valid_loader, n_cluster=100):
     first = True
+    model.eval()
     with torch.no_grad():
         normal_distance = []
         anomal_distance = []
@@ -124,6 +125,32 @@ def energy_score(img,model):
     Le = torch.log(torch.exp(logits).sum(dim=1))
     return Le, logits
 
+
+def cal_class_auroc_single(nd1,and1,cls_list):
+    # Class AUROC
+    normal_class = args.known_normal
+    anomaly_classes = [i for i in range(args.n_classes)]
+    anomaly_classes.remove(normal_class)
+
+    tod1_average = 0
+    for anomaly in anomaly_classes:
+        tod1 = nd1 + np.array(and1)[np.array(cls_list) == anomaly].tolist()
+        
+        total_label = [1 for i in range(len(nd1))] + [0 for i in range(len(tod1) - len(nd1))]
+        print('---------------------- Evaluation class: {} --------------------------'.format(anomaly))
+        print("px\t", roc_auc_score(total_label, tod1))
+        
+        tod1_average  += roc_auc_score(total_label, tod1)
+
+    tod1_average /= len(anomaly_classes)    
+    
+    print('------------------- Evaluation class average --------------------')
+    print(len(nd1), len(tod1) - len(nd1))
+    print("px\t", tod1_average)
+    print()
+    return 
+
+
 def cal_class_auroc(nd1,nd2,and1,and2,ndsum,andsum,ndmul,andmul,cls_list):
     # Class AUROC
     normal_class = args.known_normal
@@ -187,7 +214,7 @@ def earlystop_score(model,valid_loader):
         images1 = pos.to(device)
         images2 = pos2.to(device)
         images1, images2 = simclr_aug(images1), simclr_aug(images2)
-        images1, images2 = normalize(images1), normalize(images2)
+#         images1, images2 = normalize(images1), normalize(images2)
         all_semi_targets = torch.cat([semi_target,semi_target+1])
         
 #         _, out = model(images1,need_feat = True)
@@ -199,7 +226,7 @@ def earlystop_score(model,valid_loader):
         Le = torch.log(torch.exp(logits).sum(dim=1))
         prob.extend(Le.tolist())
         
-#         _, out = model(images2,need_feat = True)
+#         _, out = model(images2,nee]]_feat = True)
         _, outputs_aux = model(images2, simclr=True, penultimate=False, shift=False)
         out = outputs_aux['simclr']
         norm_out = F.normalize(out,dim=-1)
@@ -221,22 +248,22 @@ def test(model, test_loader, train_loader, epoch):
         nd1,nd2,ndsum,ndmul = [],[],[],[]
         and1,and2,andsum,andmul = [],[],[],[]
         cls_list = []
-        first = True
-        for idx, (pos_1, _, _, semi_target, _, _) in enumerate(train_loader):
-            pos_1 = pos_1.cuda(non_blocking=True)
-            pos_1 = simclr_aug(pos_1)
-            #pos_1 = normalize(pos_1) 
-            # feature = model(pos_1)
-            _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
-            out = outputs_aux['simclr']
-            feature = F.normalize(out, dim=-1)
-            true_feature = feature[semi_target != -1,:]
+#         first = True
+#         for idx, (pos_1, _, _, semi_target, _, _) in enumerate(train_loader):
+#             pos_1 = pos_1.cuda(non_blocking=True)
+#             pos_1 = simclr_aug(pos_1)
+#             #pos_1 = normalize(pos_1) 
+#             # feature = model(pos_1)
+#             _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
+#             out = outputs_aux['simclr']
+#             feature = F.normalize(out, dim=-1)
+#             true_feature = feature[semi_target != -1,:]
 
-            if first:
-                totalembed = true_feature
-                first = False
-            else:
-                totalembed = torch.cat((totalembed, true_feature), dim = 0)
+#             if first:
+#                 totalembed = true_feature
+#                 first = False
+#             else:
+#                 totalembed = torch.cat((totalembed, true_feature), dim = 0)
         for idx, (pos_1, _, target, _, cls, image) in enumerate(test_loader):
             
 
@@ -255,8 +282,8 @@ def test(model, test_loader, train_loader, epoch):
                 
 #                 _ , feature = model(pos_1,need_feat = True)              
                 _, outputs_aux = model(pos_1, simclr=True, penultimate=False, shift=False)
-                out = outputs_aux['simclr']
-                out_ensemble.append(feature) 
+                out_simclr = outputs_aux['simclr']
+                out_ensemble.append(out_simclr) 
             
             
             out = torch.stack(out_ensemble,dim=1).mean(dim=1)
@@ -268,24 +295,26 @@ def test(model, test_loader, train_loader, epoch):
 
 
 
-            totalsim, _ = torch.matmul(norm_out, totalembed.t()).max(dim = 1)
+#             totalsim, _ = torch.matmul(norm_out, totalembed.t()).max(dim = 1)
 
-            Psum = Le + totalsim
-            Pmul = Le * totalsim
+#             Psum = Le + totalsim
+#             Pmul = Le * totalsim
 
             cls_list.extend(cls[negative_target])
             if len(positive_target.shape) != 0:
                 nd1.extend(Le[positive_target].tolist())
-                nd2.extend(totalsim[positive_target].tolist())
-                ndsum.extend(Psum[positive_target].tolist())
-                ndmul.extend(Pmul[positive_target].tolist())
+#                 nd2.extend(totalsim[positive_target].tolist())
+#                 ndsum.extend(Psum[positive_target].tolist())
+#                 ndmul.extend(Pmul[positive_target].tolist())
 
             if len(negative_target.shape) != 0:
                 and1.extend(Le[negative_target].tolist())
-                and2.extend(totalsim[negative_target].tolist())
-                andsum.extend(Psum[negative_target].tolist())
-                andmul.extend(Pmul[negative_target].tolist())
-    cal_class_auroc(nd1,nd2,and1,and2,ndsum,andsum,ndmul,andmul,cls_list)
+#                 and2.extend(totalsim[negative_target].tolist())
+#                 andsum.extend(Psum[negative_target].tolist())
+#                 andmul.extend(Pmul[negative_target].tolist())
+
+    cal_class_auroc_single(nd1,and1,cls_list)
+#     cal_class_auroc(nd1,nd2,and1,and2,ndsum,andsum,ndmul,andmul,cls_list)
 
 
 ## 0) setting 
@@ -362,17 +391,17 @@ train_loader, false_valid_loader, valid_loader, test_loader = total_dataset.load
 simclr_aug = get_simclr_augmentation(image_size=(32, 32, 3)).to(device)
 normalize = TL.NormalizeLayer()
 
-if args.set_initial_kmeanspp:
+if False:
     print("Prototype: initialize kmeans pp")
     model.module.prototypes = generate_prototypes(model, false_valid_loader, n_cluster=100)
 else:
     print("Prototype: initialize random")
-    raise
 #     model.module.prototypes = model.module.prototypes.to(args.device)
     model.module.prototypes = torch.rand(args.n_cluster, 128) - 0.5
     model.module.prototypes = F.normalize(model.module.prototypes, dim = -1)
     model.module.prototypes = model.module.prototypes.to(args.device)
 
+    
 params = model.parameters()
 if args.optimizer == "adam":
     optim = torch.optim.Adam(params, lr=args.lr, betas=[.9, .999], weight_decay=args.weight_decay)
@@ -381,6 +410,8 @@ elif args.optimizer =="SGD":
 import copy
     
 # Evaluation before training
+
+
 test(model, test_loader, train_loader, -1)
 earlystop_trace = []
 end_train = False
@@ -388,9 +419,15 @@ max_earlystop_auroc = 0
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 hflip = TL.HorizontalFlipLayer().to(device)
+
+C = (torch.log(torch.Tensor([args.n_cluster])) + 1/args.temperature).to(device)
+
+args.sample_num = 1
 for epoch in range(args.n_epochs):
     model.train()
-    
+#     for m in model.modules():
+#         if isinstance(m, nn.BatchNorm2d):
+#             m.eval()
     # adjust learning rate 
 #     if epoch in args.decay_epochs:
 #         for param_group in optim.param_groups:
@@ -401,20 +438,19 @@ for epoch in range(args.n_epochs):
     
     # training
     losses = []
-    for i, (pos, pos2, _, semi_target, _, _) in tqdm(enumerate(train_loader)):
+    for i, (pos, _, _, semi_target, _, _) in tqdm(enumerate(train_loader)):
         #pos1, pos2 = pos1.to(args.device), pos2.to(args.device)
+        pos = pos.to(args.device)
         semi_target = semi_target.to(args.device)
         semi_target = semi_target.repeat(2)
         #La = similarity_loss(pos1, pos2, model)
 
-        pos = pos.to(args.device)
         pos_1, pos_2 = hflip(pos.repeat(2, 1, 1, 1)).chunk(2)
         pos = torch.cat([pos_1,pos_2],dim=0)
         pos = simclr_aug(pos)
 #         pos = normalize(pos)
         score, logits1 = energy_score(pos, model)
 #         _, logits2 = energy_score(pos2, model)
-        C = (torch.log(torch.Tensor([args.n_cluster])) + 1/args.temperature).to(device)
         Le = torch.where(semi_target == -1, (C - score) ** -1, score ** -1).mean()   ## Le inverse
 #         Le = torch.where(semi_target == -1, score, score ** -1).mean()  
         
@@ -451,6 +487,8 @@ for epoch in range(args.n_epochs):
         print("trainin ended")
         break
 
+    test(model, test_loader, train_loader, epoch) # we do not test them
+    
 print("best epoch:",best_epoch,"best auroc:",max_earlystop_auroc)
 test(best_model, test_loader, train_loader, epoch) # we do not test them
 

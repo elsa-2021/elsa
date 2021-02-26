@@ -53,58 +53,58 @@ def cal_class_auroc(nd1,nd2,nd3,nd4,nd5,and1,and2,and3,and4,and5,ndsum,andsum,nd
     anomaly_classes = [i for i in range(args.n_classes)]
     anomaly_classes.remove(normal_class)
     
-    tosum_average = 0
-    tomul_average = 0
+#     tosum_average = 0
+#     tomul_average = 0
     tod1_average = 0
-    tod2_average = 0
-    tod3_average = 0
-    tod4_average = 0
-    tod5_average = 0
+#     tod2_average = 0
+#     tod3_average = 0
+#     tod4_average = 0
+#     tod5_average = 0
     for anomaly in anomaly_classes:
-        tosum = ndsum + np.array(andsum)[np.array(cls_list) == anomaly].tolist()
-        tomul = ndmul + np.array(andmul)[np.array(cls_list) == anomaly].tolist()
+#         tosum = ndsum + np.array(andsum)[np.array(cls_list) == anomaly].tolist()
+#         tomul = ndmul + np.array(andmul)[np.array(cls_list) == anomaly].tolist()
         tod1 = nd1 + np.array(and1)[np.array(cls_list) == anomaly].tolist()
-        tod2 = nd2 + np.array(and2)[np.array(cls_list) == anomaly].tolist()
-        tod3 = nd3 + np.array(and3)[np.array(cls_list) == anomaly].tolist()
-        tod4 = nd4 + np.array(and4)[np.array(cls_list) == anomaly].tolist()
-        tod5 = nd5 + np.array(and5)[np.array(cls_list) == anomaly].tolist()
-        total_label = [1 for i in range(len(ndsum))] + [0 for i in range(len(tosum) - len(ndsum))]
+#         tod2 = nd2 + np.array(and2)[np.array(cls_list) == anomaly].tolist()
+#         tod3 = nd3 + np.array(and3)[np.array(cls_list) == anomaly].tolist()
+#         tod4 = nd4 + np.array(and4)[np.array(cls_list) == anomaly].tolist()
+#         tod5 = nd5 + np.array(and5)[np.array(cls_list) == anomaly].tolist()
+        total_label = [1 for i in range(len(nd1))] + [0 for i in range(len(tod1) - len(nd1))]
         print('---------------------- Evaluation class: {} --------------------------'.format(anomaly))
-        print(len(ndsum), len(tosum) - len(ndsum))
-        print("sum\t", roc_auc_score(total_label, tosum))
-        print("mul\t", roc_auc_score(total_label, tomul))
+        print(len(nd1), len(tod1) - len(nd1))
+#         print("sum\t", roc_auc_score(total_label, tosum))
+#         print("mul\t", roc_auc_score(total_label, tomul))
         print("px\t", roc_auc_score(total_label, tod1))
-        print("pyx\t", roc_auc_score(total_label, tod2))
-        print("pshi\t", roc_auc_score(total_label, tod3))
-        print("pshienergy\t", roc_auc_score(total_label, tod4))
-        print("pshiyx\t",roc_auc_score(total_label, tod5))
+#         print("pyx\t", roc_auc_score(total_label, tod2))
+#         print("pshi\t", roc_auc_score(total_label, tod3))
+#         print("pshienergy\t", roc_auc_score(total_label, tod4))
+#         print("pshiyx\t",roc_auc_score(total_label, tod5))
         print('----------------------------------------------------------------------')
         print()
         
-        tosum_average += roc_auc_score(total_label, tosum)
-        tomul_average += roc_auc_score(total_label, tomul)
+#         tosum_average += roc_auc_score(total_label, tosum)
+#         tomul_average += roc_auc_score(total_label, tomul)
         tod1_average  += roc_auc_score(total_label, tod1)
-        tod2_average  += roc_auc_score(total_label, tod2)
-        tod3_average  += roc_auc_score(total_label, tod3)
-        tod4_average  += roc_auc_score(total_label, tod4)
-        tod5_average  += roc_auc_score(total_label, tod5)
+#         tod2_average  += roc_auc_score(total_label, tod2)
+#         tod3_average  += roc_auc_score(total_label, tod3)
+#         tod4_average  += roc_auc_score(total_label, tod4)
+#         tod5_average  += roc_auc_score(total_label, tod5)
     
-    tosum_average /= len(anomaly_classes)
-    tomul_average /= len(anomaly_classes)
+#     tosum_average /= len(anomaly_classes)
+#     tomul_average /= len(anomaly_classes)
     tod1_average /= len(anomaly_classes)
-    tod2_average /= len(anomaly_classes)
-    tod3_average /= len(anomaly_classes)      
-    tod4_average /= len(anomaly_classes)    
-    tod5_average /= len(anomaly_classes)
+#     tod2_average /= len(anomaly_classes)
+#     tod3_average /= len(anomaly_classes)      
+#     tod4_average /= len(anomaly_classes)    
+#     tod5_average /= len(anomaly_classes)
     print('------------------- Evaluation class average --------------------')
-    print(len(ndsum), len(tosum) - len(ndsum))
-    print("sum\t", tosum_average)
-    print("mul\t", tomul_average)
+    print(len(nd1), len(tod1) - len(nd1))
+#     print("sum\t", tosum_average)
+#     print("mul\t", tomul_average)
     print("px\t", tod1_average)
-    print("pyx\t", tod2_average)
-    print("pshi\t", tod3_average)
-    print("pshienergy\t", tod4_average)
-    print("pshiyx\t", tod5_average)
+#     print("pyx\t", tod2_average)
+#     print("pshi\t", tod3_average)
+#     print("pshienergy\t", tod4_average)
+#     print("pshiyx\t", tod5_average)
     print('----------------------------------------------------------------------')
     print()
     return 
@@ -270,90 +270,90 @@ def test(model, test_loader, train_loader, epoch):
         ndsum, ndmul, nd1, nd2, nd3, nd4,nd5 = [], [], [], [], [], [], []
         andsum, andmul, and1, and2, and3, and4,and5 = [], [], [], [], [], [], []
         cls_list = []
-        first = True
-        for idx, (pos_1, _, _, semi_target,_, _) in enumerate(train_loader):
-            pos_1 = pos_1.cuda(non_blocking=True) # B
-            semi_target = semi_target.to(device)
-            out,pen_out,norm_out = get_features(pos_1,model,use_simclr_aug=True,use_ensemble=True) # outs = (4*B,D)
-            # 
-            all_semi_target = semi_target.repeat(4)
-            true_out = out[all_semi_target != -1,:]    
-            true_pen_out = pen_out[all_semi_target != -1,:]    
-            true_pen_energy_out = torch.logsumexp(pen_out[all_semi_target != -1,:], dim = -1) # (4B)
-            false_pen_energy_out = torch.logsumexp(pen_out[all_semi_target == -1,:], dim = -1) # (4B)
+#         first = True
+#         for idx, (pos_1, _, _, semi_target,_, _) in enumerate(train_loader):
+#             pos_1 = pos_1.cuda(non_blocking=True) # B
+#             semi_target = semi_target.to(device)
+#             out,pen_out,norm_out = get_features(pos_1,model,use_simclr_aug=True,use_ensemble=True) # outs = (4*B,D)
+#             # 
+#             all_semi_target = semi_target.repeat(4)
+#             true_out = out[all_semi_target != -1,:]    
+#             true_pen_out = pen_out[all_semi_target != -1,:]    
+#             true_pen_energy_out = torch.logsumexp(pen_out[all_semi_target != -1,:], dim = -1) # (4B)
+#             false_pen_energy_out = torch.logsumexp(pen_out[all_semi_target == -1,:], dim = -1) # (4B)
             
-            a = F.softmax(pen_out[all_semi_target != -1,:], dim = -1) # B, 4
-            b = torch.logsumexp(pen_out[all_semi_target != -1,:], dim = -1) # B
-            true_pen_yx_out = ( b * a.t() ).t()
+#             a = F.softmax(pen_out[all_semi_target != -1,:], dim = -1) # B, 4
+#             b = torch.logsumexp(pen_out[all_semi_target != -1,:], dim = -1) # B
+#             true_pen_yx_out = ( b * a.t() ).t()
              
             
             
-            true_out_list = torch.stack(true_out.chunk(4, dim = 0), dim = 1) # [B*D, B*D, B*D, B*D] -> B*4*D
-            true_pen_out_list = torch.stack(true_pen_out.chunk(4, dim = 0), dim = 1)  # [B*D, B*D, B*D, B*D] -> B*4*D
-            true_pen_energy_out_list = torch.stack(true_pen_energy_out.chunk(4, dim = 0), dim = 1) # 4B -> B * 4
-            false_pen_energy_out_list = torch.stack(false_pen_energy_out.chunk(4, dim = 0), dim = 1) # 4B -> B * 4
-            true_pen_yx_out_list = torch.stack(true_pen_yx_out.chunk(4, dim = 0), dim = 1) # [B*D, B*D, B*D, B*D] -> B*4*D
+#             true_out_list = torch.stack(true_out.chunk(4, dim = 0), dim = 1) # [B*D, B*D, B*D, B*D] -> B*4*D
+#             true_pen_out_list = torch.stack(true_pen_out.chunk(4, dim = 0), dim = 1)  # [B*D, B*D, B*D, B*D] -> B*4*D
+#             true_pen_energy_out_list = torch.stack(true_pen_energy_out.chunk(4, dim = 0), dim = 1) # 4B -> B * 4
+#             false_pen_energy_out_list = torch.stack(false_pen_energy_out.chunk(4, dim = 0), dim = 1) # 4B -> B * 4
+#             true_pen_yx_out_list = torch.stack(true_pen_yx_out.chunk(4, dim = 0), dim = 1) # [B*D, B*D, B*D, B*D] -> B*4*D
 
-            if first:
-                all_out_list = true_out_list
-                all_pen_out_list = true_pen_out_list
-                all_true_pen_energy_out_list = true_pen_energy_out_list
-                all_true_pen_yx_out_list =  true_pen_yx_out_list
-                all_false_pen_energy_out_list = false_pen_energy_out_list
-                first = False
-                print(true_pen_yx_out.shape)
-            else:
-                all_out_list = torch.cat((all_out_list, true_out_list), dim = 0)
-                all_pen_out_list = torch.cat((all_pen_out_list, true_pen_out_list), dim = 0)
-                all_true_pen_energy_out_list = torch.cat((all_true_pen_energy_out_list, true_pen_energy_out_list), dim = 0)
-                all_true_pen_yx_out_list = torch.cat((all_true_pen_yx_out_list, true_pen_yx_out_list), dim = 0)
-                all_false_pen_energy_out_list = torch.cat((all_false_pen_energy_out_list, false_pen_energy_out_list), dim = 0)
+#             if first:
+#                 all_out_list = true_out_list
+#                 all_pen_out_list = true_pen_out_list
+#                 all_true_pen_energy_out_list = true_pen_energy_out_list
+#                 all_true_pen_yx_out_list =  true_pen_yx_out_list
+#                 all_false_pen_energy_out_list = false_pen_energy_out_list
+#                 first = False
+#                 print(true_pen_yx_out.shape)
+#             else:
+#                 all_out_list = torch.cat((all_out_list, true_out_list), dim = 0)
+#                 all_pen_out_list = torch.cat((all_pen_out_list, true_pen_out_list), dim = 0)
+#                 all_true_pen_energy_out_list = torch.cat((all_true_pen_energy_out_list, true_pen_energy_out_list), dim = 0)
+#                 all_true_pen_yx_out_list = torch.cat((all_true_pen_yx_out_list, true_pen_yx_out_list), dim = 0)
+#                 all_false_pen_energy_out_list = torch.cat((all_false_pen_energy_out_list, false_pen_energy_out_list), dim = 0)
                 
-        all_axis = []
-        for f in all_out_list.chunk(4, dim=1): # (B, 4, D) -> (B, 1, D)의 리스트
-            axis = f.mean(dim=1)  # (B, 1, d) -> (B, d)
-            all_axis.append(F.normalize(axis, dim=-1).to(args.device))
-#             all_axis.append(axis.to(args.device))
+#         all_axis = []
+#         for f in all_out_list.chunk(4, dim=1): # (B, 4, D) -> (B, 1, D)의 리스트
+#             axis = f.mean(dim=1)  # (B, 1, d) -> (B, d)
+#             all_axis.append(F.normalize(axis, dim=-1).to(args.device))
+# #             all_axis.append(axis.to(args.device))
                 
-        f_sim = [f.mean(dim=1) for f in all_out_list.chunk(4, dim=1)]  # list of (T, d) where T = total data size
-        f_shi = [f.mean(dim=1) for f in all_pen_out_list.chunk(4, dim=1)]  # list of (T, 4)
-        f_shi_energy = all_true_pen_energy_out_list.chunk(4, dim=1) # list of (T)
-        f_shi_yx = [f.mean(dim=1) for f in all_true_pen_yx_out_list.chunk(4, dim=1)] # list of (T, 4)
+#         f_sim = [f.mean(dim=1) for f in all_out_list.chunk(4, dim=1)]  # list of (T, d) where T = total data size
+#         f_shi = [f.mean(dim=1) for f in all_pen_out_list.chunk(4, dim=1)]  # list of (T, 4)
+#         f_shi_energy = all_true_pen_energy_out_list.chunk(4, dim=1) # list of (T)
+#         f_shi_yx = [f.mean(dim=1) for f in all_true_pen_yx_out_list.chunk(4, dim=1)] # list of (T, 4)
             
-        weight_sim = []
-        weight_shi = []
-        weight_energy = []
-        weight_shi_energy = []
-        weight_shi_yx = []
-        zp = model.module.prototypes
-        for shi in range(4):
-            sim_norm = f_sim[shi].norm(dim=1)  # (T)
-            shi_mean = f_shi[shi][:, shi]  # (T)
-            shi_energy = f_shi_energy[shi] # (T)
-            shi_yx = f_shi_yx[shi][:, shi]
+#         weight_sim = []
+#         weight_shi = []
+#         weight_energy = []
+#         weight_shi_energy = []
+#         weight_shi_yx = []
+#         zp = model.module.prototypes
+#         for shi in range(4):
+#             sim_norm = f_sim[shi].norm(dim=1)  # (T)
+#             shi_mean = f_shi[shi][:, shi]  # (T)
+#             shi_energy = f_shi_energy[shi] # (T)
+#             shi_yx = f_shi_yx[shi][:, shi]
             
-            f_normalized = F.normalize(f_sim[shi], dim = 1)
-            f_logits = torch.matmul(f_normalized, zp.t()) # (T, d) * (d, P) = (T, P)
-#             f_logits = torch.matmul(sim_norm, zp.t()) # (T, d) * (d, P) = (T, P)
-            f_energy = torch.log(torch.exp(f_logits).sum(dim=1))
+#             f_normalized = F.normalize(f_sim[shi], dim = 1)
+#             f_logits = torch.matmul(f_normalized, zp.t()) # (T, d) * (d, P) = (T, P)
+# #             f_logits = torch.matmul(sim_norm, zp.t()) # (T, d) * (d, P) = (T, P)
+#             f_energy = torch.log(torch.exp(f_logits).sum(dim=1))
             
-            weight_sim.append(1 / sim_norm.mean().item())
-            weight_shi.append(1 / shi_mean.mean().item())
-            weight_shi_energy.append(1 / shi_energy.mean().item())
-            weight_energy.append(1 / f_energy.mean().item())
-            weight_shi_yx.append(1 / shi_yx.mean().item())
+#             weight_sim.append(1 / sim_norm.mean().item())
+#             weight_shi.append(1 / shi_mean.mean().item())
+#             weight_shi_energy.append(1 / shi_energy.mean().item())
+#             weight_energy.append(1 / f_energy.mean().item())
+#             weight_shi_yx.append(1 / shi_yx.mean().item())
             
-        all_weight_sim = weight_sim
-        all_weight_shi = weight_shi
-        all_weight_energy = weight_energy
-        all_weight_shi_energy = weight_shi_energy
-        all_weight_shi_yx = weight_shi_yx
+#         all_weight_sim = weight_sim
+#         all_weight_shi = weight_shi
+#         all_weight_energy = weight_energy
+#         all_weight_shi_energy = weight_shi_energy
+#         all_weight_shi_yx = weight_shi_yx
         
-        print(f'weight_sim:\t' + '\t'.join(map('{:.4f}'.format, all_weight_sim)))
-        print(f'weight_shi:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi)))
-        print(f'weight_energy:\t' + '\t'.join(map('{:.4f}'.format, all_weight_energy)))
-        print(f'weight_shi_energy:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi_energy)))
-        print(f'weight_shi_yx:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi_yx)))
+#         print(f'weight_sim:\t' + '\t'.join(map('{:.4f}'.format, all_weight_sim)))
+#         print(f'weight_shi:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi)))
+#         print(f'weight_energy:\t' + '\t'.join(map('{:.4f}'.format, all_weight_energy)))
+#         print(f'weight_shi_energy:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi_energy)))
+#         print(f'weight_shi_yx:\t' + '\t'.join(map('{:.4f}'.format, all_weight_shi_yx)))
         
         
         for idx, (pos_1, _, target,  _,cls,_) in enumerate(test_loader):
@@ -373,53 +373,53 @@ def test(model, test_loader, train_loader, epoch):
             pen_out_list = pen_out.chunk(4, dim = 0) # (B, 4)의 list
             
             Px_mean = 0
-            Pygivenx_mean = 0
-            Pshi_mean = 0
-            Pshi_energy = 0
-            Pshi_yx = 0
+#             Pygivenx_mean = 0
+#             Pshi_mean = 0
+#             Pshi_energy = 0
+#             Pshi_yx = 0
             for shi in range(4):
                 # Energy / Similar to P(x)
-                Px_mean += torch.log(torch.exp(logits_list[shi]).sum(dim=1)) * all_weight_energy[shi]
+                Px_mean += torch.log(torch.exp(logits_list[shi]).sum(dim=1))  #* all_weight_energy[shi]
 
                 # Similar to P(y|x)
-                Pygivenx_mean += (torch.matmul(out_list[shi], all_axis[shi].t())).max(dim=1)[0] * all_weight_sim[shi]                
+#                 Pygivenx_mean += (torch.matmul(out_list[shi], all_axis[shi].t())).max(dim=1)[0] * all_weight_sim[shi]                
                 
                 # Energy from penultimate layer
-                Pshi_mean += pen_out_list[shi][:, shi] * all_weight_shi[shi]    
+#                 Pshi_mean += pen_out_list[shi][:, shi] * all_weight_shi[shi]    
                 
                 # Energy from shi
-                pshi_x = torch.logsumexp(pen_out_list[shi], dim = 1)
-                Pshi_energy += pshi_x * all_weight_shi_energy[shi]
+#                 pshi_x = torch.logsumexp(pen_out_list[shi], dim = 1)
+#                 Pshi_energy += pshi_x * all_weight_shi_energy[shi]
                 
                 # Energy yx from shi
-                pshi_ygivenx = F.softmax(pen_out_list[shi], dim = -1)[:, shi]
+#                 pshi_ygivenx = F.softmax(pen_out_list[shi], dim = -1)[:, shi]
                 # (pshi_x * pshi_ygivenx.t()).t() 
-                Pshi_yx += pshi_ygivenx * pshi_x * all_weight_shi_energy[shi] # shape = B 
+#                 Pshi_yx += pshi_ygivenx * pshi_x * all_weight_shi_energy[shi] # shape = B 
 #                 print(Pshi_yx.shape,pshi_x.shape,pshi_ygivenx.shape,Pshi_energy.shape)
 #                 raise
                 
             # Score aggregation
-            Psum = Px_mean + Pshi_energy
-            Pmul = Px_mean * Pshi_energy
+#             Psum = Px_mean + Pshi_energy
+#             Pmul = Px_mean * Pshi_energy
    
             cls_list.extend(cls[negative_target])
             if len(positive_target.shape) != 0:
                 nd1.extend(Px_mean[positive_target].tolist())
-                nd2.extend(Pygivenx_mean[positive_target].tolist())
-                nd3.extend(Pshi_mean[positive_target].tolist())
-                nd4.extend(Pshi_energy[positive_target].tolist())
-                nd5.extend(Pshi_yx[positive_target].tolist())
-                ndsum.extend(Psum[positive_target].tolist())
-                ndmul.extend(Pmul[positive_target].tolist())
+#                 nd2.extend(Pygivenx_mean[positive_target].tolist())
+#                 nd3.extend(Pshi_mean[positive_target].tolist())
+#                 nd4.extend(Pshi_energy[positive_target].tolist())
+#                 nd5.extend(Pshi_yx[positive_target].tolist())
+#                 ndsum.extend(Psum[positive_target].tolist())
+#                 ndmul.extend(Pmul[positive_target].tolist())
                 
             if len(negative_target.shape) != 0:
                 and1.extend(Px_mean[negative_target].tolist())
-                and2.extend(Pygivenx_mean[negative_target].tolist())
-                and3.extend(Pshi_mean[negative_target].tolist())
-                and4.extend(Pshi_energy[negative_target].tolist())
-                and5.extend(Pshi_yx[negative_target].tolist())
-                andsum.extend(Psum[negative_target].tolist())
-                andmul.extend(Pmul[negative_target].tolist())
+#                 and2.extend(Pygivenx_mean[negative_target].tolist())
+#                 and3.extend(Pshi_mean[negative_target].tolist())
+#                 and4.extend(Pshi_energy[negative_target].tolist())
+#                 and5.extend(Pshi_yx[negative_target].tolist())
+#                 andsum.extend(Psum[negative_target].tolist())
+#                 andmul.extend(Pmul[negative_target].tolist())
     cal_class_auroc(nd1,nd2,nd3,nd4,nd5,and1,and2,and3,and4,and5,ndsum,andsum,ndmul,andmul,cls_list)
 #     if valid_loader is not None:
 #         print("calculating earlystop scores...")
@@ -540,7 +540,8 @@ print("known_normal:",args.known_normal,"known_outlier:",args.known_outlier)
 # Evaluation before training
 rotation = args.shift_trans 
 # m_in,m_out = test(model, test_loader, train_loader, -1,return_minout=True)
-# escore = test(model, test_loader, train_loader, -1,valid_loader=valid_loader)
+escore = test(model, test_loader, train_loader, -1)
+# raise
 criterion = nn.CrossEntropyLoss()
 
 earlystop_trace = []
