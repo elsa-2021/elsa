@@ -393,7 +393,7 @@ normalize = TL.NormalizeLayer()
 
 if False:
     print("Prototype: initialize kmeans pp")
-    model.module.prototypes = generate_prototypes(model, false_valid_loader, n_cluster=100)
+    model.module.prototypes = generate_prototypes(model, false_valid_loader, n_cluster=args.n_cluster)
 else:
     print("Prototype: initialize random")
 #     model.module.prototypes = model.module.prototypes.to(args.device)
@@ -457,7 +457,14 @@ for epoch in range(args.n_epochs):
         #x_out = F.softmax(logits1, dim=-1)
         #x_tf_out = F.softmax(logits2, dim=-1)
         #La = entropyloss(x_out,x_tf_out)        
-        
+#         _, outputs_aux = model(img, simclr=True, penultimate=False, shift=False)
+#         out = outputs_aux['simclr']
+#         z = F.normalize(out, dim=-1)
+
+#         zp = model.module.prototypes
+#         logits = torch.matmul(z, zp.t()) / args.temperature
+#         Le = torch.log(torch.exp(logits).sum(dim=1))
+#         Lr = 
         L = Le
         optim.zero_grad()
         L.backward()
@@ -470,25 +477,28 @@ for epoch in range(args.n_epochs):
     earlystop_trace.append(earlystop_auroc)
     print('[{}]epoch loss:'.format(epoch), np.mean(losses))
     print('[{}]earlystop loss:'.format(epoch),earlystop_auroc)
-    if epoch % args.ckpt_every == 0 or epoch == args.n_epochs - 1: 
-        checkpoint(model,  f'ckpt_ssl_{epoch}.pt', args, args.device)
+#     if epoch % args.ckpt_every == 0 or epoch == args.n_epochs - 1: 
+#         checkpoint(model,  f'ckpt_ssl_{epoch}.pt', args, args.device)
         
     if max_earlystop_auroc < earlystop_auroc:
         max_earlystop_auroc = earlystop_auroc
         best_epoch = epoch
-        checkpoint(model,  f'ckpt_ssl_{epoch}.pt', args, args.device)
         best_model = copy.deepcopy(model)
-    if epoch>50:
-        if earlystop_trace[-4] < max_earlystop_auroc and earlystop_trace[-3] < max_earlystop_auroc and earlystop_trace[-2] < max_earlystop_auroc:
-            end_train = True
+#     if epoch>50:
+#         if earlystop_trace[-4] < max_earlystop_auroc and earlystop_trace[-3] < max_earlystop_auroc and earlystop_trace[-2] < max_earlystop_auroc:
+#             end_train = True
     
-    if end_train:
-        checkpoint(model,  f'ckpt_ssl_{epoch}.pt', args, args.device)
-        print("trainin ended")
-        break
+#     if end_train:
+#         checkpoint(model,  f'ckpt_ssl_{epoch}.pt', args, args.device)
+#         print("trainin ended")
+#         break
 
     test(model, test_loader, train_loader, epoch) # we do not test them
-    
+    if (epoch%1) ==0:
+        model.eval()
+        with torch.no_grad():
+            print("redefine prototypes")
+            model.module.prototypes = generate_prototypes(model, false_valid_loader, n_cluster=args.n_cluster)
 print("best epoch:",best_epoch,"best auroc:",max_earlystop_auroc)
 test(best_model, test_loader, train_loader, epoch) # we do not test them
-
+checkpoint(model,  f'ckpt_ssl_{epoch}_best.pt', args, args.device)
