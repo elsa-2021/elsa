@@ -317,7 +317,8 @@ for i, (pos,pos2,_, semi_target,_,_) in tqdm(enumerate(valid_loader)):
     images2 = images2.to(device)
     images1 = simclr_aug(images1)
     images2 = simclr_aug(images2)
-    validation_dataset.append([images1,images2,semi_target])
+    val_semi_target = torch.zeros(len(semi_target), dtype=torch.int64)
+    validation_dataset.append([images1,images2,val_semi_target])
 
 
 
