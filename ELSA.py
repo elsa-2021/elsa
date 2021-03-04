@@ -207,7 +207,9 @@ def earlystop_score(model,valid_loader):
     rot_num = 4
     weighted_aucscores,aucscores = [],[]
     zp = model.module.prototypes
-    for pos, pos2, _, semi_target, _, raw in valid_loader:
+
+    semi_target = 0
+    for pos, pos2, _, _, _, raw in valid_loader:
         prob,prob2, label_list = [] , [], []
         weighted_prob, weighted_prob2 = [], []
         Px_mean,Px_mean2 = 0, 0  
