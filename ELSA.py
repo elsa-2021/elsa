@@ -203,19 +203,19 @@ def cal_class_auroc(nd1,nd2,and1,and2,ndsum,andsum,ndmul,andmul,cls_list):
     print()
     return 
 
-def earlystop_score(model,valid_loader):
+def earlystop_score(model,validation_dataset):
     rot_num = 4
     weighted_aucscores,aucscores = [],[]
     zp = model.module.prototypes
 
-    semi_target = 0
-    for pos, pos2, _, _, _, raw in valid_loader:
+    #for pos, pos2, _, _, _, raw in valid_loader:
+    for images1, images2, semi_target in validation_dataset:
         prob,prob2, label_list = [] , [], []
         weighted_prob, weighted_prob2 = [], []
         Px_mean,Px_mean2 = 0, 0  
-        images1 = pos.to(device)
-        images2 = pos2.to(device)
-        images1, images2 = simclr_aug(images1), simclr_aug(images2)
+        #images1 = pos.to(device)
+        #images2 = pos2.to(device)
+        #images1, images2 = simclr_aug(images1), simclr_aug(images2)
 #         images1, images2 = normalize(images1), normalize(images2)
         all_semi_targets = torch.cat([semi_target,semi_target+1])
         
@@ -223,7 +223,6 @@ def earlystop_score(model,valid_loader):
         _, outputs_aux = model(images1, simclr=True, penultimate=False, shift=False)
         out = outputs_aux['simclr']
         norm_out = F.normalize(out,dim=-1)
-        zp = model.module.prototypes
         logits = torch.matmul(norm_out, zp.t())
         Le = torch.log(torch.exp(logits).sum(dim=1))
         prob.extend(Le.tolist())
@@ -232,7 +231,6 @@ def earlystop_score(model,valid_loader):
         _, outputs_aux = model(images2, simclr=True, penultimate=False, shift=False)
         out = outputs_aux['simclr']
         norm_out = F.normalize(out,dim=-1)
-        zp = model.module.prototypes
         logits = torch.matmul(norm_out, zp.t())
         Le = torch.log(torch.exp(logits).sum(dim=1))
         prob2.extend(Le.tolist())
@@ -393,7 +391,19 @@ train_loader, false_valid_loader, valid_loader, test_loader = total_dataset.load
 simclr_aug = get_simclr_augmentation(image_size=(32, 32, 3)).to(device)
 normalize = TL.NormalizeLayer()
 
-if False:
+print('setup fixed validation data')
+validation_dataset = []
+for i, (pos,pos2,_, semi_target,_,_) in tqdm(enumerate(valid_loader)):
+    #images1 = torch.cat([rotation(pos, k) for k in range(rot_num)])
+    #images2 = torch.cat([rotation(pos2, k) for k in range(rot_num)])
+    images1 = pos.to(device)
+    images2 = pos2.to(device)
+    images1 = simclr_aug(images1)
+    images2 = simclr_aug(images2)
+    val_semi_target = torch.zeros(len(semi_target), dtype=torch.int64)
+    validation_dataset.append([images1,images2,val_semi_target])
+
+if args.set_initial_kmeanspp:
     print("Prototype: initialize kmeans pp")
     model.module.prototypes = generate_prototypes(model, false_valid_loader, n_cluster=args.n_cluster)
 else:
@@ -475,7 +485,7 @@ for epoch in range(args.n_epochs):
     
     model.eval()
     with torch.no_grad():
-        earlystop_auroc = earlystop_score(model,valid_loader)
+        earlystop_auroc = earlystop_score(model,validation_dataset)
     earlystop_trace.append(earlystop_auroc)
     print('[{}]epoch loss:'.format(epoch), np.mean(losses))
     print('[{}]earlystop loss:'.format(epoch),earlystop_auroc)
