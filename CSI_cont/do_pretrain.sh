@@ -6,8 +6,8 @@ SHIFT_TRANS_TYPE='rotation'
 CLASS_LIST=({0..9})
 RATIO_POLLUTION_LIST=('0.0' '0.05' '0.1')
 EPOCHS=1000
-TRAIN_STR="train.py --dataset cifar10 --model resnet18"
-RESULT_STR="cifar10_resnet18_unsup"
+TRAIN_STR="train.py --dataset stl10 --model resnet18_stl"
+RESULT_STR="stl10_resnet18_unsup"
 
 usage() { echo "Usage: $0 [-g <GPU to use>][-r]" 1>&2; exit 1; }
 while getopts ":g:r" o; do

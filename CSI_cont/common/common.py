@@ -7,11 +7,11 @@ def parse_args(default=False):
     parser = ArgumentParser(description='Pytorch implementation of CSI')
 
     parser.add_argument('--dataset', help='Dataset',
-                        choices=['cifar10', 'cifar100', 'imagenet'], type=str)
+                        choices=['cifar10', 'cifar100', 'imagenet', 'stl10'], type=str)
     parser.add_argument('--one_class_idx', help='None: multi-class, Not None: one-class',
                         default=None, type=int)
     parser.add_argument('--model', help='Model',
-                        choices=['resnet18', 'resnet18_imagenet'], type=str)
+                        choices=['resnet18', 'resnet18_imagenet', 'resnet18_stl'], type=str)
     parser.add_argument('--mode', help='Training mode',
                         default='simclr', type=str)
     parser.add_argument('--simclr_dim', help='Dimension of simclr layer',
@@ -47,7 +47,7 @@ def parse_args(default=False):
     parser.add_argument('--warmup', help='Warm-up epochs',
                         default=10, type=int)
     parser.add_argument('--lr_init', help='Initial learning rate',
-                        default=1e-1, type=float)
+                        default=1e-3, type=float)
     parser.add_argument('--weight_decay', help='Weight decay',
                         default=1e-6, type=float)
     parser.add_argument('--batch_size', help='Batch size',

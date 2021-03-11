@@ -1,3 +1,4 @@
+
 from copy import deepcopy
 
 import torch
@@ -140,8 +141,3 @@ if P.mode == 'sup_linear' or P.mode == 'sup_CSI_linear':
     assert P.load_path is not None
     checkpoint = torch.load(P.load_path)
     model.load_state_dict(checkpoint, strict=not P.no_strict)
-
-# if P.multi_gpu:
-#     simclr_aug = apex.parallel.DistributedDataParallel(simclr_aug, delay_allreduce=True)
-#     model = apex.parallel.convert_syncbn_model(model)
-#     model = apex.parallel.DistributedDataParallel(model, delay_allreduce=True)

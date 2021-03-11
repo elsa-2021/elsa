@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODEL_DIR="/home/data/aya/elsa/pretrains_lars_csi"
-MAIN_CMD="python3 eval.py --mode ood_pre --dataset cifar10 --model resnet18 --ood_score CSI --shift_trans_type rotation --print_score --ood_samples 10 --resize_factor 0.54 --resize_fix"
+MAIN_CMD="python3 eval.py --mode ood_pre --dataset stl10 --model resnet18_stl --ood_score CSI --shift_trans_type rotation --print_score --ood_samples 10 --resize_factor 0.54 --resize_fix"
 SAVE_DIR="./pretrain_eval"
 
 CLASS_LIST=({0..9})

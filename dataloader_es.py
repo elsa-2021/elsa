@@ -2,11 +2,13 @@ from PIL import Image
 from torch.utils.data import Subset
 from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
-
+from torch.utils.data import Dataset, DataLoader
+from PIL import Image
 import torch
 import random
 import numpy as np
+import os
+import copy
 
 SAMPLE_CHECK = False
 
@@ -23,8 +25,143 @@ def load_dataset(data_path, normal_class, known_outlier_class, n_known_outlier_c
                               train_transform=train_transform,
                               test_transform=test_transform,
                              valid_transform= valid_transform)
+    
     return dataset
 
+def load_mc_dataset(data_path, normal_class, known_outlier_class, n_known_outlier_classes = 0,
+                 ratio_known_normal = 0.0, ratio_known_outlier = 0.0, ratio_pollution = 0.0,
+                 random_state=None,train_transform=None, test_transform=None,valid_transform=None):
+    dataset = MC_Dataset(root=data_path,normal_class=normal_class,
+                              known_outlier_class=known_outlier_class,
+                              n_known_outlier_classes=n_known_outlier_classes,
+                              ratio_known_normal=ratio_known_normal,
+                              ratio_known_outlier=ratio_known_outlier,
+                              ratio_pollution=ratio_pollution,
+                              train_transform=train_transform,
+                              test_transform=test_transform,
+                             valid_transform= valid_transform)
+    
+    return dataset
+
+class MC_Dataset():
+    def __init__(self, root, ratio_known_normal = 0.0, ratio_known_outlier = 0.0, ratio_pollution = 0.0, 
+                 train_transform=None, test_transform=None,valid_transform=None):
+
+        # Define normal and outlier classes
+        self.n_classes = 2  # 0: normal, 1: outlier
+        self.normal_classes = tuple([0])
+        self.outlier_classes = tuple([1])
+        self.root = root       
+        self.known_outlier_classes = tuple([1])
+
+        # CIFAR-10 preprocessing: feature scaling to [0, 1]
+        target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
+        
+        cifar_data = CIFAR10(root, train=True, download=True).data
+        # Get train set
+        
+        train_set = MC_Data(cifar_data, 'Imagenet_resize', transform=train_transform)
+        false_valid_set =  MC_Data(cifar_data, 'LSUN_pil', transform=test_transform)
+        cifar_data = CIFAR10(root, train=False, download=True).data
+        test_set =  MC_Data(cifar_data, 'LSUN_pil', transform=test_transform)
+        train_set.transform2 = valid_transform
+
+        # Create semi-supervised setting
+        idx, _, semi_targets = create_semisupervised_setting(np.array(train_set.targets), self.normal_classes , self.outlier_classes, self.known_outlier_classes, ratio_known_normal, ratio_known_outlier, ratio_pollution)
+        
+        train_set.semi_targets[idx] = torch.tensor(semi_targets)  # set respective semi-supervised labels
+        false_valid_set.semi_targets[idx] = torch.tensor(semi_targets) 
+        
+        
+        #seperation from train set
+        valset_ratio = 0.05
+        valset_size = int(len(np.array(idx)[np.array(semi_targets)==0]) * valset_ratio)
+        val_idx = list(np.random.choice(np.array(idx)[np.array(semi_targets)==0],size=valset_size,replace=False))
+        
+
+        train_idx = list(set(idx).difference(set(val_idx)))
+        test_idx = [i for i in range(0, 60000)]
+        test_idx = list(set(test_idx).difference(set(idx)))
+        test_idx.pop(0)
+        
+        test_idx = list(map(lambda x: x - 40000, test_idx))
+
+        test_idx = [i for i in range(0, 10000)] + test_idx
+        
+        print('val dataset:',len(val_idx))
+        print("train dataset:",len(train_idx))
+        print("test dataset:",len(test_idx))
+        
+        # Subset train_set to semi-supervised setup
+        self.train_set = Subset(train_set, train_idx)
+        self.valid_set = Subset(train_set, val_idx)
+        self.false_valid_set = Subset(false_valid_set, idx)
+        self.test_set = Subset(test_set, test_idx)
+        
+        
+    def loaders(self, batch_size, shuffle_train=True, shuffle_test=False, num_workers=4):
+        train_loader = DataLoader(dataset=self.train_set, batch_size=batch_size, shuffle=shuffle_train,
+                                  num_workers=num_workers, drop_last=True)
+        false_valid_loader = DataLoader(dataset=self.false_valid_set, batch_size=batch_size, shuffle=shuffle_test,
+                                  num_workers=num_workers, drop_last=False)        
+        valid_loader = DataLoader(dataset=self.valid_set, batch_size=batch_size, shuffle=shuffle_test,
+                                  num_workers=num_workers, drop_last=False)        
+        test_loader = DataLoader(dataset=self.test_set, batch_size=batch_size, shuffle=shuffle_test,
+                                 num_workers=num_workers, drop_last=False)
+        
+        return train_loader, false_valid_loader,valid_loader, test_loader
+
+
+class MC_Data(Dataset):
+    def __init__(self, c_dataset, o_dataset, transform=None):
+        o_dataset_root = os.path.join('../ood_data/', o_dataset)
+        self.c_dataset = c_dataset
+        self.o_dataset = []
+        self.targets = []
+        
+        self.transform = transform
+        
+        self.transform2 = None
+        self.raw_tf = transforms.Compose([
+            transforms.ToTensor(),
+        ])
+        
+        for idx in os.listdir(o_dataset_root):
+            image = copy.deepcopy(Image.open(os.path.join(o_dataset_root, idx)))
+            image = np.array(image)
+            self.o_dataset.append(image)
+        
+        self.o_dataset  = np.asarray(self.o_dataset)
+        self.data = np.concatenate((self.c_dataset, self.o_dataset))
+        
+        for i in range(0, self.c_dataset.shape[0]):
+            self.targets.append(0)
+        
+        for i in range(0, self.o_dataset.shape[0]):
+            self.targets.append(1) 
+        
+        
+        self.semi_targets = torch.zeros(len(self.targets), dtype=torch.int64)
+        
+        
+    def __len__(self): 
+        return len(self.dataset)
+    
+    def __getitem__(self, index): 
+        img, semi_target, target = self.data[index], int(self.semi_targets[index]), self.targets[index]
+        # doing this so that it is consistent with all other datasets
+        # to return a PIL Image
+        img = Image.fromarray(img)
+        raw = self.raw_tf(img)
+        
+        if self.transform is not None:
+            pos_1 = self.transform(img)
+            if self.transform2 is not None:
+                pos_2 = self.raw_tf(self.transform2(img))
+            else:
+                pos_2 = self.transform(img)
+                
+        return pos_1, pos_2, semi_target, target
 
 class CIFAR10_Dataset():
     def __init__(self, root, normal_class = [5], known_outlier_class = 3, n_known_outlier_classes = 0,
@@ -51,8 +188,7 @@ class CIFAR10_Dataset():
         target_transform = transforms.Lambda(lambda x: int(x in self.outlier_classes))
 
         # Get train set
-        train_set = MyCIFAR10(root=self.root, train=True, transform=train_transform, target_transform=target_transform,
-                              download=True)
+        train_set = MyCIFAR10(root=self.root, train=True, transform=train_transform, target_transform=target_transform,download=True)
         
         train_set.transform2 = valid_transform
         if valid_transform is not None:
@@ -83,8 +219,7 @@ class CIFAR10_Dataset():
         self.false_valid_set = Subset(false_valid_set,idx)
         
         # Get test set
-        self.test_set = MyCIFAR10(root=self.root, train=False, transform=test_transform, target_transform=target_transform,
-                                  download=True)
+        self.test_set = MyCIFAR10(root=self.root, train=False, transform=test_transform, target_transform=target_transform, download=True)
 #         self.test_set.transform2 = train_transform
         
         

@@ -23,7 +23,7 @@ parser.add_argument("--decay_rate", type=float, default=.3,
                     help="learning rate decay multiplier")
 parser.add_argument("--optimizer", choices=["adam", "sgd"], default="adam")
 parser.add_argument("--batch_size", type=int, default=64)
-parser.add_argument("--n_epochs", type=int, default=200)
+parser.add_argument("--n_epochs", type=int, default=50)
 parser.add_argument("--warmup_iters", type=int, default=-1,
                     help="number of iters to linearly increase learning rate, if -1 then no warmmup")
 
@@ -31,6 +31,7 @@ parser.add_argument("--weight_decay", type=float, default=0.0)
 parser.add_argument("--sigma", type=float, default=3e-2,
                         help="stddev of gaussian noise to add to input, .03 works but .1 is more stable")
 parser.add_argument('--backbone', default='resnet', type=str, help='The backbone network')
+parser.add_argument('--ood_data', default='LSUN_resize', type=str, help='OOD dataset Name')
 
 # pretrained model loading
 parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim for latent vector')
@@ -50,7 +51,7 @@ parser.add_argument("--m",type=int,default=10)
 ##
 parser.add_argument("--eval_no_norm", action="store_true", help="If true, do not use normalized feature to eval")
 parser.add_argument("--set_initial_kmeanspp", default=True, help="If true, use kmeans++ to set initial prototypes")
-parser.add_argument("--n_cluster",type=int, default=500, help="number of prototypes")
+parser.add_argument("--n_cluster",type=int, default=200, help="number of prototypes")
 parser.add_argument("--sample_num",type=int, default=10, help="number of ensemble iteration")
 
 

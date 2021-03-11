@@ -26,6 +26,7 @@ from randaugment_without_rotation import *
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 hflip = TL.HorizontalFlipLayer().to(device)
 import random,numpy as np
+
 def set_random_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -75,7 +76,8 @@ def cal_class_auroc(nd1,nd2,nd3,nd4,nd5,and1,and2,and3,and4,and5,ndsum,andsum,nd
 #     print("pshiyx\t", tod5_average)
     print('----------------------------------------------------------------------')
     print()
-    return 
+    return
+
 def get_features(pos_1,model,use_simclr_aug=False,use_ensemble=False):
     if use_ensemble:
         sample_num = args.sample_num
@@ -101,6 +103,7 @@ def get_features(pos_1,model,use_simclr_aug=False,use_ensemble=False):
     norm_out = F.normalize(out,dim=-1)
 #     raise
     return out,pen_out,norm_out
+
 def generate_prototypes(model, valid_loader, n_cluster=100, split = False):
     first = True
     with torch.no_grad():
@@ -202,6 +205,7 @@ def earlystop_score(model,validation_dataset):
     print("earlystop_score:",np.mean(aucscores))
     return np.mean(aucscores)
 #     print("weighted_score:",np.mean(weighted_aucscores))
+
 def test(model, test_loader, train_loader, epoch):
     model.eval()
     with torch.no_grad():
