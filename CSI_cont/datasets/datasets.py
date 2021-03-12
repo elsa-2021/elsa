@@ -11,12 +11,12 @@ import copy
 from PIL import Image
 
 DATA_PATH = '~/data/'
-IMAGENET_PATH = '~/data/ImageNet'
+IMAGENET_PATH = '../../data/ImageNet'
 
 
 CIFAR10_SUPERCLASS = list(range(10))  # one class
 STL10_SUPERCLASS = list(range(10))  # one class
-IMAGENET_SUPERCLASS = list(range(30))  # one class
+IMAGENET_SUPERCLASS = list(range(10))  # one class
 
 CIFAR100_SUPERCLASS = [
     [4, 31, 55, 72, 95],
@@ -40,6 +40,8 @@ CIFAR100_SUPERCLASS = [
     [8, 13, 48, 58, 90],
     [41, 69, 81, 85, 89],
 ]
+
+
 
 
 class MultiDataTransform(object):
@@ -67,6 +69,62 @@ class MultiDataTransformList(object):
             sample_list.append(self.transform(sample))
 
         return sample_list, self.clean_transform(sample)
+    
+    
+class ImageNetSubset(Dataset):
+    def __init__(self, root, transform, split='train'):
+        super(ImageNetSubset, self).__init__()
+
+        self.root = IMAGENET_PATH
+        self.transform = transform
+        self.split = split
+        self.labels = []
+        
+        # Read the subset of classes to include (sorted)
+        train_list = []
+        test_list = []
+        
+        self.img = []
+        
+        
+        for i in range(0, 10):
+            dir_name = os.path.join(IMAGENET_PATH, str(i))
+            file_list = os.listdir(dir_name)
+            train = np.random.choice(file_list, 1000)
+            test = list(set(file_list) - set(train))
+            
+            if self.split == 'train':
+                for file in train:
+                    file_name = os.path.join(dir_name, file)
+                    image = copy.deepcopy(Image.open(file_name).convert('RGB'))
+                    image = np.array(image)
+                    self.img.append(image)
+                    self.labels.append(i)
+                
+            else:
+                for file in test:
+                    file_name = os.path.join(dir_name, file)
+                    image = copy.deepcopy(Image.open(file_name))
+                    image = np.array(image)
+                    self.img.append(image)
+                    self.labels.append(i)   
+        
+        self.img = np.asarray(self.img)
+                
+
+    def __len__(self):
+        return len(self.img)
+
+    def __getitem__(self, index):
+        img = self.img[index]
+        img = Image.fromarray(img)
+        label = self.labels[index]
+        
+        if self.transform is not None:
+            img = self.transform(img)
+            
+        
+        return img, label
 
 
 def get_transform(image_size=None):
@@ -399,11 +457,10 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
     elif dataset == 'imagenet':
         image_size = (224, 224, 3)
-        n_classes = 30
-        train_dir = os.path.join(IMAGENET_PATH, 'one_class_train')
-        test_dir = os.path.join(IMAGENET_PATH, 'one_class_test')
-        train_set = datasets.ImageFolder(train_dir, transform=train_transform)
-        test_set = datasets.ImageFolder(test_dir, transform=test_transform)
+        n_classes = 10 
+        ImageNetSubset
+        train_set = ImageNetSubset(root = IMAGENET_PATH, transform=train_transform, split = 'train')
+        test_set = ImageNetSubset(root = IMAGENET_PATH, transform=test_transform, split = 'test')
 
     elif dataset == 'stanford_dogs':
         assert test_only and image_size is not None

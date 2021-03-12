@@ -47,7 +47,7 @@ def parse_args(default=False):
     parser.add_argument('--warmup', help='Warm-up epochs',
                         default=10, type=int)
     parser.add_argument('--lr_init', help='Initial learning rate',
-                        default=1e-3, type=float)
+                        default=1e-1, type=float)
     parser.add_argument('--weight_decay', help='Weight decay',
                         default=1e-6, type=float)
     parser.add_argument('--batch_size', help='Batch size',

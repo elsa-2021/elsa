@@ -1,0 +1,128 @@
+[2021-03-12 13:29:25.467579] Namespace(K_shift=4, batch_size=32, dataset='imagenet', epochs=1000, error_step=5, image_size=(224, 224, 3), known_outlier=1, load_path=None, local_rank=0, lr_init=0.001, lr_scheduler='cosine', mode='simclr_CSI', model='resnet18_imagenet', multi_gpu=False, n_classes=10, n_gpus=1, n_known_outlier=1, n_superclasses=10, no_strict=False, one_class_idx=0, ood_batch_size=100, ood_dataset=[1, 2, 3, 4, 5, 6, 7, 8, 9], ood_layer='simclr', ood_samples=1, ood_score=['norm_mean'], optimizer='adam', print_score=False, ratio_known_normal=0, ratio_known_outlier=0, ratio_pollution=0.05, resize_factor=0.08, resize_fix=False, resume_path=None, save_score=False, save_step=10, shift_trans=Rotation(), shift_trans_type='rotation', sim_lambda=1.0, simclr_dim=128, single_device=0, suffix=None, temperature=0.5, test_batch_size=100, warmup=10, weight_decay=1e-06)
+[2021-03-12 13:29:25.467951] ResNet(
+  (linear): Linear(in_features=512, out_features=10, bias=True)
+  (simclr_layer): Sequential(
+    (0): Linear(in_features=512, out_features=512, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=512, out_features=128, bias=True)
+  )
+  (shift_cls_layer): Linear(in_features=512, out_features=4, bias=True)
+  (joint_distribution_layer): Linear(in_features=512, out_features=40, bias=True)
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (relu): ReLU(inplace=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (downsample): Sequential(
+        (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (normalize): NormalizeLayer()
+)
+Epoch 1 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:29:27.450834] [Epoch   1;   0] [Time 0.256] [Data 1.538] [LR 0.00100]
+[LossC 0.000000] [LossSim 5.476834] [LossShift 1.502206]
+[2021-03-12 13:29:41.741664] [DONE] [Time 0.215] [Data 0.470] [LossC 0.000000] [LossSim 5.327112] [LossShift 1.470419]
+Epoch 2 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:29:43.623579] [Epoch   2;   0] [Time 0.222] [Data 1.431] [LR 0.00190]
+[LossC 0.000000] [LossSim 5.078322] [LossShift 1.372352]
+[2021-03-12 13:29:57.981294] [DONE] [Time 0.215] [Data 0.469] [LossC 0.000000] [LossSim 5.224505] [LossShift 1.371300]
+Epoch 3 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:29:59.884122] [Epoch   3;   0] [Time 0.220] [Data 1.459] [LR 0.00280]
+[LossC 0.000000] [LossSim 5.280152] [LossShift 1.357034]
+[2021-03-12 13:30:14.208066] [DONE] [Time 0.217] [Data 0.471] [LossC 0.000000] [LossSim 5.154552] [LossShift 1.321292]
+Epoch 4 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:30:15.957008] [Epoch   4;   0] [Time 0.218] [Data 1.311] [LR 0.00370]
+[LossC 0.000000] [LossSim 5.304619] [LossShift 1.295589]
+[2021-03-12 13:30:30.358416] [DONE] [Time 0.213] [Data 0.468] [LossC 0.000000] [LossSim 5.112047] [LossShift 1.273941]
+Epoch 5 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:30:32.302624] [Epoch   5;   0] [Time 0.226] [Data 1.505] [LR 0.00460]
+[LossC 0.000000] [LossSim 5.049806] [LossShift 1.264510]
+[2021-03-12 13:30:46.742997] [DONE] [Time 0.216] [Data 0.475] [LossC 0.000000] [LossSim 5.027090] [LossShift 1.201633]
+Epoch 6 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:30:48.582088] [Epoch   6;   0] [Time 0.217] [Data 1.389] [LR 0.00550]
+[LossC 0.000000] [LossSim 5.195951] [LossShift 1.225521]
+[2021-03-12 13:31:03.006686] [DONE] [Time 0.213] [Data 0.471] [LossC 0.000000] [LossSim 4.868952] [LossShift 1.096010]
+Epoch 7 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:31:04.894839] [Epoch   7;   0] [Time 0.226] [Data 1.433] [LR 0.00640]
+[LossC 0.000000] [LossSim 5.045159] [LossShift 1.196865]
+[2021-03-12 13:31:19.412999] [DONE] [Time 0.215] [Data 0.474] [LossC 0.000000] [LossSim 4.799693] [LossShift 0.990330]
+Epoch 8 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:31:21.344552] [Epoch   8;   0] [Time 0.226] [Data 1.476] [LR 0.00730]
+[LossC 0.000000] [LossSim 4.916824] [LossShift 1.095550]
+[2021-03-12 13:31:35.787284] [DONE] [Time 0.213] [Data 0.474] [LossC 0.000000] [LossSim 4.761706] [LossShift 0.902818]
+Epoch 9 (logs0/imagenet_resnet18_imagenet_unsup_simclr_CSI_shift_rotation_one_class_0)
+[2021-03-12 13:31:37.677014] [Epoch   9;   0] [Time 0.213] [Data 1.444] [LR 0.00820]
+[LossC 0.000000] [LossSim 4.747149] [LossShift 0.767788]
